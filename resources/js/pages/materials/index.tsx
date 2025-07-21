@@ -173,6 +173,16 @@ export default function MaterialsIndex() {
                                         onChange={(e) => setFormData({ ...formData, unit_price: parseFloat(e.target.value) || 0 })}
                                     />
                                 </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Stock Quantity</label>
+                                    <Input
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        value={formData.stock_quantity}
+                                        onChange={(e) => setFormData({ ...formData, stock_quantity: parseFloat(e.target.value) || 0 })}
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium mb-1">Description</label>
