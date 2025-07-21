@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { customerApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Search, Edit, Trash2 } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -169,18 +170,17 @@ export default function CustomersIndex() {
                             <div>
                                 <label className="block text-sm font-medium mb-1">Address</label>
                                 <textarea
-                                    className="w-full p-2 border rounded-md"
+                                    className="border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex w-full min-w-0 rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
                                     rows={3}
                                     value={formData.address}
                                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                                 />
                             </div>
                             <div className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
+                                <Checkbox
                                     id="is_active"
                                     checked={formData.is_active}
-                                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                                    onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked as boolean })}
                                 />
                                 <label htmlFor="is_active" className="text-sm font-medium">Active</label>
                             </div>
@@ -237,8 +237,8 @@ export default function CustomersIndex() {
                                             <td className="p-4">{customer.contact_person || '-'}</td>
                                             <td className="p-4">
                                                 <span className={`px-2 py-1 rounded-full text-xs ${
-                                                    customer.is_active 
-                                                        ? 'bg-green-100 text-green-800' 
+                                                    customer.is_active
+                                                        ? 'bg-green-100 text-green-800'
                                                         : 'bg-red-100 text-red-800'
                                                 }`}>
                                                     {customer.is_active ? 'Active' : 'Inactive'}

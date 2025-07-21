@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { productionApi, materialApi, productApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Search, Edit, Trash2 } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -160,35 +161,41 @@ export default function ProductionsIndex() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Material *</label>
-                                    <select
+                                    <Select
                                         required
-                                        className="w-full p-2 border rounded-md"
                                         value={formData.material_id}
-                                        onChange={(e) => setFormData({ ...formData, material_id: e.target.value })}
+                                        onValueChange={(value) => setFormData({ ...formData, material_id: value })}
                                     >
-                                        <option value="">Select Material</option>
-                                        {materials.map((material) => (
-                                            <option key={material.id} value={material.id}>
-                                                {material.name} (Stock: {Math.round(material.stock_quantity)} {material.unit})
-                                            </option>
-                                        ))}
-                                    </select>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select Material" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {materials.map((material) => (
+                                                <SelectItem key={material.id} value={material.id.toString()}>
+                                                    {material.name} (Stock: {Math.round(material.stock_quantity)} {material.unit})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Product *</label>
-                                    <select
+                                    <Select
                                         required
-                                        className="w-full p-2 border rounded-md"
                                         value={formData.product_id}
-                                        onChange={(e) => setFormData({ ...formData, product_id: e.target.value })}
+                                        onValueChange={(value) => setFormData({ ...formData, product_id: value })}
                                     >
-                                        <option value="">Select Product</option>
-                                        {products.map((product) => (
-                                            <option key={product.id} value={product.id}>
-                                                {product.name} ({product.code})
-                                            </option>
-                                        ))}
-                                    </select>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select Product" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {products.map((product) => (
+                                                <SelectItem key={product.id} value={product.id.toString()}>
+                                                    {product.name} ({product.code})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Material Quantity Used *</label>
@@ -225,7 +232,7 @@ export default function ProductionsIndex() {
                             <div>
                                 <label className="block text-sm font-medium mb-1">Notes</label>
                                 <textarea
-                                    className="w-full p-2 border rounded-md"
+                                    className="border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex w-full min-w-0 rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
                                     rows={3}
                                     value={formData.notes}
                                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}

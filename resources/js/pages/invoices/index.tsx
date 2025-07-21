@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { invoiceApi, customerApi, productApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Search, Edit, Trash2, FileText, Download } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -198,35 +199,41 @@ export default function InvoicesIndex() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Customer *</label>
-                                    <select
+                                    <Select
                                         required
-                                        className="w-full p-2 border rounded-md"
                                         value={formData.customer_id}
-                                        onChange={(e) => setFormData({ ...formData, customer_id: e.target.value })}
+                                        onValueChange={(value) => setFormData({ ...formData, customer_id: value })}
                                     >
-                                        <option value="">Select Customer</option>
-                                        {customers.map((customer) => (
-                                            <option key={customer.id} value={customer.id}>
-                                                {customer.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select Customer" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {customers.map((customer) => (
+                                                <SelectItem key={customer.id} value={customer.id.toString()}>
+                                                    {customer.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Product *</label>
-                                    <select
+                                    <Select
                                         required
-                                        className="w-full p-2 border rounded-md"
                                         value={formData.product_id}
-                                        onChange={(e) => setFormData({ ...formData, product_id: e.target.value })}
+                                        onValueChange={(value) => setFormData({ ...formData, product_id: value })}
                                     >
-                                        <option value="">Select Product</option>
-                                        {products.map((product) => (
-                                            <option key={product.id} value={product.id}>
-                                                {product.name} (Stock: {Math.round(product.stock_quantity)} {product.unit})
-                                            </option>
-                                        ))}
-                                    </select>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select Product" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {products.map((product) => (
+                                                <SelectItem key={product.id} value={product.id.toString()}>
+                                                    {product.name} (Stock: {Math.round(product.stock_quantity)} {product.unit})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Quantity *</label>
@@ -269,16 +276,20 @@ export default function InvoicesIndex() {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Status</label>
-                                    <select
-                                        className="w-full p-2 border rounded-md"
+                                    <Select
                                         value={formData.status}
-                                        onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                                        onValueChange={(value) => setFormData({ ...formData, status: value as any })}
                                     >
-                                        <option value="draft">Draft</option>
-                                        <option value="sent">Sent</option>
-                                        <option value="paid">Paid</option>
-                                        <option value="cancelled">Cancelled</option>
-                                    </select>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select Status" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="draft">Draft</SelectItem>
+                                            <SelectItem value="sent">Sent</SelectItem>
+                                            <SelectItem value="paid">Paid</SelectItem>
+                                            <SelectItem value="cancelled">Cancelled</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Total Price</label>
@@ -292,7 +303,7 @@ export default function InvoicesIndex() {
                             <div>
                                 <label className="block text-sm font-medium mb-1">Notes</label>
                                 <textarea
-                                    className="w-full p-2 border rounded-md"
+                                    className="border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex w-full min-w-0 rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
                                     rows={3}
                                     value={formData.notes}
                                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
@@ -355,16 +366,20 @@ export default function InvoicesIndex() {
                                             <td className="p-4">{Math.round(invoice.quantity)} {invoice.product?.unit}</td>
                                             <td className="p-4">Rp {Math.round(invoice.total_price).toLocaleString('id-ID')}</td>
                                             <td className="p-4">
-                                                <select
-                                                    className={`px-2 py-1 rounded-full text-xs border-none ${statusColors[invoice.status]}`}
+                                                <Select
                                                     value={invoice.status}
-                                                    onChange={(e) => handleStatusChange(invoice, e.target.value)}
+                                                    onValueChange={(value) => handleStatusChange(invoice, value)}
                                                 >
-                                                    <option value="draft">Draft</option>
-                                                    <option value="sent">Sent</option>
-                                                    <option value="paid">Paid</option>
-                                                    <option value="cancelled">Cancelled</option>
-                                                </select>
+                                                    <SelectTrigger className={`w-auto px-2 py-1 h-auto rounded-full text-xs border-none ${statusColors[invoice.status]}`}>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="draft">Draft</SelectItem>
+                                                        <SelectItem value="sent">Sent</SelectItem>
+                                                        <SelectItem value="paid">Paid</SelectItem>
+                                                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
                                             </td>
                                             <td className="p-4">{new Date(invoice.invoice_date).toLocaleDateString('id-ID')}</td>
                                             <td className="p-4">
