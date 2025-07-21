@@ -25,6 +25,7 @@ export default function ProductsIndex() {
     const [search, setSearch] = useState('');
     const [showForm, setShowForm] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+    const [hasTransactions, setHasTransactions] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         code: '',
@@ -81,8 +82,30 @@ export default function ProductsIndex() {
         }
     };
 
-    const handleEdit = (product: Product) => {
+    const checkProductTransactions = async (productId: number) => {
+        try {
+            // Check if product has production or invoice transactions
+            const response = await productApi.getById(productId);
+            const product = response.data.data;
+
+            // Check if product has related transactions
+            const hasProduction = product.productions && product.productions.length > 0;
+            const hasInvoice = product.invoices && product.invoices.length > 0;
+
+            return hasProduction || hasInvoice;
+        } catch (error) {
+            console.error('Failed to check product transactions:', error);
+            return false;
+        }
+    };
+
+    const handleEdit = async (product: Product) => {
         setEditingProduct(product);
+
+        // Check if product has transactions
+        const hasTransactionHistory = await checkProductTransactions(product.id);
+        setHasTransactions(hasTransactionHistory);
+
         setFormData({
             name: product.name,
             code: product.code,
@@ -175,14 +198,28 @@ export default function ProductsIndex() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">Stock Quantity</label>
+                                    <label className="block text-sm font-medium mb-1">
+                                        Stock Quantity
+                                        {hasTransactions && editingProduct && (
+                                            <span className="text-xs text-orange-600 ml-2">
+                                                (Cannot edit - has transactions)
+                                            </span>
+                                        )}
+                                    </label>
                                     <Input
                                         type="number"
                                         step="0.01"
                                         min="0"
                                         value={formData.stock_quantity}
                                         onChange={(e) => setFormData({ ...formData, stock_quantity: parseFloat(e.target.value) || 0 })}
+                                        disabled={hasTransactions && !!editingProduct}
+                                        className={hasTransactions && editingProduct ? 'bg-gray-100 cursor-not-allowed' : ''}
                                     />
+                                    {hasTransactions && editingProduct && (
+                                        <p className="text-xs text-gray-600 mt-1">
+                                            Stock can only be changed through transactions (Production/Invoice)
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                             <div>
@@ -212,6 +249,7 @@ export default function ProductsIndex() {
                                     onClick={() => {
                                         setShowForm(false);
                                         setEditingProduct(null);
+                                        setHasTransactions(false);
                                         setFormData({
                                             name: '',
                                             code: '',

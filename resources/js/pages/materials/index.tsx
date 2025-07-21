@@ -25,6 +25,7 @@ export default function MaterialsIndex() {
     const [search, setSearch] = useState('');
     const [showForm, setShowForm] = useState(false);
     const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
+    const [hasTransactions, setHasTransactions] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         code: '',
@@ -81,8 +82,30 @@ export default function MaterialsIndex() {
         }
     };
 
-    const handleEdit = (material: Material) => {
+    const checkMaterialTransactions = async (materialId: number) => {
+        try {
+            // Check if material has incoming or production transactions
+            const response = await materialApi.getById(materialId);
+            const material = response.data.data;
+
+            // Check if material has related transactions
+            const hasIncoming = material.incoming && material.incoming.length > 0;
+            const hasProduction = material.productions && material.productions.length > 0;
+
+            return hasIncoming || hasProduction;
+        } catch (error) {
+            console.error('Failed to check material transactions:', error);
+            return false;
+        }
+    };
+
+    const handleEdit = async (material: Material) => {
         setEditingMaterial(material);
+
+        // Check if material has transactions
+        const hasTransactionHistory = await checkMaterialTransactions(material.id);
+        setHasTransactions(hasTransactionHistory);
+
         setFormData({
             name: material.name,
             code: material.code,
@@ -175,14 +198,28 @@ export default function MaterialsIndex() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">Stock Quantity</label>
+                                    <label className="block text-sm font-medium mb-1">
+                                        Stock Quantity
+                                        {hasTransactions && editingMaterial && (
+                                            <span className="text-xs text-orange-600 ml-2">
+                                                (Cannot edit - has transactions)
+                                            </span>
+                                        )}
+                                    </label>
                                     <Input
                                         type="number"
                                         step="0.01"
                                         min="0"
                                         value={formData.stock_quantity}
                                         onChange={(e) => setFormData({ ...formData, stock_quantity: parseFloat(e.target.value) || 0 })}
+                                        disabled={hasTransactions && !!editingMaterial}
+                                        className={hasTransactions && editingMaterial ? 'bg-gray-100 cursor-not-allowed' : ''}
                                     />
+                                    {hasTransactions && editingMaterial && (
+                                        <p className="text-xs text-gray-600 mt-1">
+                                            Stock can only be changed through transactions (Incoming/Production)
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                             <div>
@@ -212,6 +249,7 @@ export default function MaterialsIndex() {
                                     onClick={() => {
                                         setShowForm(false);
                                         setEditingMaterial(null);
+                                        setHasTransactions(false);
                                         setFormData({
                                             name: '',
                                             code: '',
